@@ -1,7 +1,7 @@
 <!-- TARGET PATH: <project root>/.claude/rules/economy.md -->
 ---
 paths:
-  - "src/economy/**/*.py"
+  - "src/kickcard/economy/**/*.py"
   - "tests/economy/**/*.py"
 ---
 

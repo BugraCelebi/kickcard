@@ -1,7 +1,7 @@
 <!-- TARGET PATH: <project root>/.claude/rules/game-engine.md -->
 ---
 paths:
-  - "src/game/**/*.py"
+  - "src/kickcard/game/**/*.py"
   - "tests/game/**/*.py"
   - "data/cards.json"
 ---

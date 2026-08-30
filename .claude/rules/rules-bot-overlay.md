@@ -1,9 +1,9 @@
 <!-- TARGET PATH: <project root>/.claude/rules/bot-overlay.md -->
 ---
 paths:
-  - "src/bot/**/*.py"
-  - "src/ingest/**/*.py"
-  - "src/api/**/*.py"
+  - "src/kickcard/bot/**/*.py"
+  - "src/kickcard/ingest/**/*.py"
+  - "src/kickcard/api/**/*.py"
   - "overlay/**"
 ---
 

@@ -29,24 +29,26 @@ dosya adında, fonksiyon adında veya kolon adında geçmez.
 ## Commands
 
 ```bash
-make dev          # bot + api + overlay, watch mode
-make test         # pytest, engine tests included
-make lint         # ruff + mypy
-make db-reset     # reset local database, load seed cards
+uv run pytest              # pytest, engine tests included
+uv run ruff check .        # lint
+uv run mypy src            # type check, strict on kickcard.game / kickcard.economy
 ```
 
-Commit öncesi `make test` ve `make lint` geçmeli.
+Dev server ve db-reset komutları henüz yok — bkz. `docs/progress.md` Sprint 0.
+
+Commit öncesi `uv run pytest`, `uv run ruff check .` ve `uv run mypy src` geçmeli.
 
 ## Architecture
 
 ```
 src/
-  ingest/     Kick chat connection; raw message -> Command object
-  bot/        command routing, cooldowns, chat replies
-  game/       duel engine — PURE, no external dependencies
-  economy/    eddies, pack opening, dust, pity
-  store/      Postgres + Redis access
-  api/        FastAPI, overlay WebSocket
+  kickcard/
+    ingest/     Kick chat connection; raw message -> Command object
+    bot/        command routing, cooldowns, chat replies
+    game/       duel engine — PURE, no external dependencies
+    economy/    eddies, pack opening, dust, pity
+    store/      Postgres + Redis access
+    api/        FastAPI, overlay WebSocket
 overlay/      single-page HTML/CSS/JS, OBS browser source
 data/         cards.json — single source of truth
 tests/
@@ -56,15 +58,15 @@ tests/
 
 Bunlar ihlal edilirse oyun sessizce bozulur. Bir tanesini bozman gerekiyorsa **önce sor.**
 
-1. **`src/game/` stays pure.** No DB, Redis, HTTP, clock or randomness. The duel engine is a
+1. **`src/kickcard/game/` stays pure.** No DB, Redis, HTTP, clock or randomness. The duel engine is a
    deterministic function `(deck_a, deck_b) -> TurnLog`. Same input, same output, always.
 2. **Card stats are never hand-written.** Every card satisfies
    `damage + hp + keyword_cost == cost * 25 + 10` (±5). `make test` enforces this. Test kırmızıysa
    kartı düzelt, testi değil.
-3. **All balance changes go through `economy/ledger.py`.** Every change writes a `ledger_entry`
+3. **All balance changes go through `kickcard/economy/ledger.py`.** Every change writes a `ledger_entry`
    row with a non-empty reason. Never assign to `player.eddies` anywhere else.
 4. **Card data lives in `data/cards.json`.** Never hardcode stats. The engine loads from there.
-5. **Only `src/bot/` writes to Kick.** Other layers emit events; they do not send chat messages.
+5. **Only `src/kickcard/bot/` writes to Kick.** Other layers emit events; they do not send chat messages.
 
 ## Do not
 
@@ -76,7 +78,7 @@ Bunlar ihlal edilirse oyun sessizce bozulur. Bir tanesini bozman gerekiyorsa **�
 
 ## Conventions
 
-- Type hints zorunlu. `mypy --strict` `src/game/` ve `src/economy/` üzerinde geçmeli.
+- Type hints zorunlu. `mypy --strict` `src/kickcard/game/` ve `src/kickcard/economy/` üzerinde geçmeli.
 - Dosya adları `snake_case.py`, sınıflar `PascalCase`, sabitler `UPPER_SNAKE`.
 - Her yeni engine davranışı için önce test yaz, sonra kodu.
 - Commit mesajları İngilizce, imperative mood: `add pity counter to pack opener`.
