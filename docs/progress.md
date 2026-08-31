@@ -12,7 +12,9 @@ Bir madde 30 dakikadan uzun sürüyorsa alt maddelere böl.
   - [x] Migration'ı gerçek bir Postgres'e karşı çalıştır ve şemayı doğrula
     (`docker compose up -d && uv run --env-file .env python scripts/migrate.py`).
 - [x] Redis connection, stream mode key
-- [ ] `src/ingest/` — Pusher WS connection, raw message -> `Command`
+- [x] `src/kickcard/ingest/` — Pusher WS connection, raw message -> `ChatMessage`
+  - [ ] Abonelik / takip / hediye abonelik WS olaylarını parse et (ekonomi kazanım kuralları
+    bunlara bağlı)
 - [ ] Reconnect + outage resilience (yayın 6 saat sürüyor)
 - [ ] `economy/ledger.py` — balance changes + ledger entries, negative balance guard
 - [ ] Activity window and per-stream cap
@@ -33,6 +35,8 @@ Bir madde 30 dakikadan uzun sürüyorsa alt maddelere böl.
 - [ ] Overlay: WebSocket connection, scene manager, queue
 - [ ] Overlay: pack opening animation
 - [ ] Stream modes + `!mod` + vault mechanic
+  - [ ] Yetki kontrolü için `sender.identity.badges` alanını ingest'te `ChatMessage`'a taşı
+    (broadcaster/moderator rozeti)
 - [ ] Chat hygiene: silent on success, 60s batched summary, global throttle
 - [ ] **Yayında duyur — ilk gerçek test**
 
@@ -73,3 +77,8 @@ Bir madde 30 dakikadan uzun sürüyorsa alt maddelere böl.
   `\d` ile `player`/`collection`/`deck`/`duel`/`ledger_entry` şeması ve tüm adlandırılmış CHECK
   constraint'leri canlı Postgres'te doğrulandı, `schema_migrations` kaydı mevcut. Redis container'ı
   da `PONG` ile doğrulandı.
+- 2026-08-31: `src/kickcard/ingest/` (Pusher WS → `ChatMessage`) eklendi. **Gerçek bir Kick hesabına
+  karşı doğrulanmadı** — bu ortamda canlı bir Kick yayını/token yok. `parse_chat_message`'daki chat
+  mesajı payload şeması (alan adları, `sender.identity`/`badges` yapısı) ve `pusher:subscribe`'ın
+  `socket_id` olmadan çalıştığı varsayımı, gerçek trafikte teyit edilmeli. Sorun çıkarsa düzeltme
+  tek dosyada kalır: `src/kickcard/ingest/pusher_client.py`.

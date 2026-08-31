@@ -43,7 +43,7 @@ Commit öncesi `uv run pytest`, `uv run ruff check .` ve `uv run mypy src` geçm
 ```
 src/
   kickcard/
-    ingest/     Kick chat connection; raw message -> Command object
+    ingest/     Kick chat connection; raw message -> ChatMessage object
     bot/        command routing, cooldowns, chat replies
     game/       duel engine — PURE, no external dependencies
     economy/    eddies, pack opening, dust, pity
