@@ -36,6 +36,9 @@ Single Redis key. Bot and overlay both subscribe to it.
 | `BUSY` | full | reduced | on | queued | off |
 | `OFF` | none | off | off | off | off |
 
+Default and fail-safe mode is OFF — missing key, unrecognized value or Redis failure all resolve
+to OFF.
+
 `SILENT` mode RP yayınları için. Satın alınan paket **açılmadan vault'a** eklenir, bir sonraki
 `GAME` yayınında `!kasa` ile toplu açılır. Bu modda satın alma onayları biriktirilir ve
 bir sonraki `GAME` yayınının başında toplu olarak chat'e yazılır.

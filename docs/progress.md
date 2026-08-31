@@ -7,15 +7,19 @@ Bir madde 30 dakikadan uzun sürüyorsa alt maddelere böl.
 
 ## Sprint 0 — Foundation (yayında değil)
 
-- [ ] Project skeleton, `make dev/test/lint`, ruff + mypy config
-- [ ] Postgres schema + migration (`player`, `collection`, `deck`, `match`, `ledger_entry`)
-- [ ] Redis connection, stream mode key
+- [x] Project skeleton, `make dev/test/lint`, ruff + mypy config
+- [x] Postgres schema + migration (`player`, `collection`, `deck`, `duel`, `ledger_entry`)
+  - [x] Migration'ı gerçek bir Postgres'e karşı çalıştır ve şemayı doğrula
+    (`docker compose up -d && uv run --env-file .env python scripts/migrate.py`).
+- [x] Redis connection, stream mode key
 - [ ] `src/ingest/` — Pusher WS connection, raw message -> `Command`
 - [ ] Reconnect + outage resilience (yayın 6 saat sürüyor)
 - [ ] `economy/ledger.py` — balance changes + ledger entries, negative balance guard
 - [ ] Activity window and per-stream cap
 - [ ] `!eddie` command + chat reply
 - [ ] **Bir yayın boyunca sessizce çalıştır, `ledger_entry` tablosunu incele**
+  - [ ] `tests/economy/test_ledger_reconciliation.py` — bir oyuncu için `ledger_entry` toplamı
+    (eddies ve dust ayrı ayrı) `player.eddies` / `player.dust` ile eşleşiyor mu, test et
 
 ## Sprint 1 — Cards and packs
 
@@ -39,7 +43,7 @@ Bir madde 30 dakikadan uzun sürüyorsa alt maddelere böl.
 - [ ] `!deste` (with codes) + `!deste oto`
 - [ ] `!düello` / `!kabul` + 60s timeout
 - [ ] Overlay: turn-by-turn playback, core bars
-- [ ] Match records -> `match` table
+- [ ] Match records -> `duel` table
 
 ## Sprint 3 — Polish
 
@@ -59,3 +63,13 @@ Bir madde 30 dakikadan uzun sürüyorsa alt maddelere böl.
 
 <!-- Oturum sonlarında öğrendiklerini buraya yaz. Tekrarlayan bir düzeltme
      görürsen CLAUDE.md'ye veya ilgili rule dosyasına taşı. -->
+
+- 2026-08-30: Proje iskeleti kuruldu. `Makefile` yerine doğrudan `uv run pytest/ruff/mypy` kullanılıyor
+  (bu ortamda `make` yok); paketler tek çatı paket `src/kickcard/{ingest,bot,game,economy,store,api}`
+  altında. `docs/card-game-plan.md` → `docs/plan.md` olarak yeniden adlandırıldı. `CLAUDE.md` ve
+  `.claude/rules/` içindeki yollar buna göre güncellendi.
+- 2026-08-31: Docker bu oturumda kullanılabilir hale geldi (önceki oturumlarda yoktu).
+  `docker compose up -d` + `uv run --env-file .env python scripts/migrate.py` çalıştırıldı;
+  `\d` ile `player`/`collection`/`deck`/`duel`/`ledger_entry` şeması ve tüm adlandırılmış CHECK
+  constraint'leri canlı Postgres'te doğrulandı, `schema_migrations` kaydı mevcut. Redis container'ı
+  da `PONG` ile doğrulandı.

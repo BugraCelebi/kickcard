@@ -145,7 +145,7 @@ collection      (kick_user_id, card_id, quantity)      -- PK (user, card)
 
 deck            (kick_user_id PK, card_ids JSONB)      -- ordered, 5 entries
 
-match           (id PK, player_a, player_b, winner,
+duel            (id PK, player_a, player_b, winner,
                  turn_log JSONB, created_at)           -- turn_log = overlay replay
 
 ledger_entry    (id PK, kick_user_id, kind, amount, reason, created_at)

@@ -2,7 +2,10 @@
 name = "kickcard"
 version = "0.1.0"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "psycopg[binary]>=3.2,<4",
+    "redis>=5.0,<6",
+]
 
 [dependency-groups]
 dev = ["pytest", "ruff", "mypy"]
