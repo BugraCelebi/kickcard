@@ -15,10 +15,9 @@ Bir madde 30 dakikadan uzun sürüyorsa alt maddelere böl.
 - [x] `src/kickcard/ingest/` — Pusher WS connection, raw message -> `ChatMessage`
 - [x] Reconnect + outage resilience (yayın 6 saat sürüyor)
 - [x] `economy/ledger.py` — balance changes + ledger entries, negative balance guard
-- [ ] Activity window and per-stream cap
-  - [ ] Abonelik / takip / hediye abonelik WS olaylarını parse et (ekonomi kazanım kuralları
-    bunlara bağlı)
-  - [ ] Bot hesaplarını eddie kazanımından dışla (BotRix vb. — dışlama listesi bot/ katmanında)
+- [x] Activity window and per-stream cap
+  - [x] Bot hesaplarını eddie kazanımından dışla (BotRix vb. — liste `EDDIE_EXCLUDED_USERNAMES`
+    ortam değişkeninden, `economy/activity.py` tarafından okunuyor)
 - [ ] `!eddie` command + chat reply
 - [ ] **Bir yayın boyunca sessizce çalıştır, `ledger_entry` tablosunu incele**
   - [ ] `tests/economy/test_ledger_reconciliation.py` — bir oyuncu için `ledger_entry` toplamı
@@ -35,9 +34,15 @@ Bir madde 30 dakikadan uzun sürüyorsa alt maddelere böl.
 - [ ] `!paket`, `!koleksiyon`, `!kart` + fuzzy matching
 - [ ] Overlay: WebSocket connection, scene manager, queue
 - [ ] Overlay: pack opening animation
+- [ ] Abonelik / takip / hediye abonelik WS olaylarını parse et (ekonomi kazanım kalemleri)
+  Payload şekli ve kanal adı bilinmiyor — `chatrooms.{id}.v2` değil, muhtemelen
+  `channel.{channel_id}`. Canlı yayında ham JSON yakalanmalı; `.env`'e numerik channel id
+  değişkeni gerekecek.
 - [ ] Stream modes + `!mod` + vault mechanic
   - [ ] Yetki kontrolü için `sender.identity.badges` alanını ingest'te `ChatMessage`'a taşı
     (broadcaster/moderator rozeti)
+  - [ ] `!mod` ile canlı moda ilk geçişte `start_stream_session()` tetiklensin — aynı yayın
+    içindeki mod değişimleri (GAME→SILENT→GAME) yeni oturum BAŞLATMAMALI, yoksa tavan sıfırlanır
 - [ ] Chat hygiene: silent on success, 60s batched summary, global throttle
 - [ ] **Yayında duyur — ilk gerçek test**
 
@@ -59,6 +64,10 @@ Bir madde 30 dakikadan uzun sürüyorsa alt maddelere böl.
 
 ## Sprint 4 — Balance
 
+- [ ] Aktiflik kazanç oranı ile per-stream cap'i uyumlu hale getir — mevcut sabitlerle 400 tavanına
+  3.3 saat gerekiyor (5 dk'da 10 eddie = 120/saat), `plan.md` §4.5 ise 2 saatlik yayında ~400
+  varsayıyor (gerçekte maks. 240); paket fiyatlandırması bu rakama dayanıyor. Karar Sprint 1'in
+  `tests/economy/test_simulation.py` sonucundan sonra.
 - [ ] Card win-rate report from match data
 - [ ] Second eddie sink
 - [ ] Duel reward / wager (deferred earlier)
@@ -90,6 +99,12 @@ Bir madde 30 dakikadan uzun sürüyorsa alt maddelere böl.
   outage penceresi loglama. **Bu davranış (backoff büyümesi, stabil bağlantı sonrası sıfırlanma,
   outage log'ları) henüz gerçek bir kesintiyle canlı doğrulanmadı** — sadece saf
   `compute_backoff_delay` fonksiyonu test edildi.
+- 2026-09-01: Aktiflik penceresi + tavan eklendi (`economy/activity.py`, `store/stream_session.py`,
+  `store/player.py`). Sıcak yol (her mesaj) sadece 2 Redis yazması; DB işleri 5 dk'lık tick'te.
+  Session **tembel oluşturulmuyor** — Redis restart'ında tavanın sıfırlanıp herkesin ikinci kez 400
+  kazanması geri alınamaz olurdu; session yoksa tick hiç ödül vermiyor. 7 entegrasyon testi gerçek
+  Redis+Postgres'e karşı geçti. `economy/` strict mypy kapsamında olduğu için redis-py'nin
+  `Awaitable[T] | T` dönüş tipine karşı küçük bir `_redis_call` yardımcısı gerekti.
 - 2026-08-31: `economy/ledger.py` (`credit`/`debit`, `Currency`, `InsufficientBalanceError`,
   `PlayerNotFoundError`) ve `store/db.py` (`get_pg_connection`, async psycopg) eklendi.
   `tests/economy/test_ledger.py` gerçek docker-compose Postgres'ine karşı çalışıp geçti (6 canlı
