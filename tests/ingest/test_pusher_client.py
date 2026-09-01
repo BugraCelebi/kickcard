@@ -1,8 +1,9 @@
 import json
+import random
 from dataclasses import fields
 from datetime import datetime
 
-from kickcard.ingest.pusher_client import parse_chat_message
+from kickcard.ingest.pusher_client import compute_backoff_delay, parse_chat_message
 
 
 def test_parse_chat_message_extracts_message_from_chat_event() -> None:
@@ -50,3 +51,16 @@ def test_parse_chat_message_ignores_non_chat_events() -> None:
     }
 
     assert parse_chat_message(event) is None
+
+
+def test_compute_backoff_delay_grows_with_attempt_but_stays_bounded() -> None:
+    rng = random.Random(0)
+    for attempt in range(6):
+        delay = compute_backoff_delay(attempt, base_seconds=1.0, max_seconds=60.0, rng=rng)
+        assert 0 <= delay <= min(60.0, 1.0 * 2**attempt)
+
+
+def test_compute_backoff_delay_is_capped_at_max_seconds() -> None:
+    rng = random.Random(0)
+    delay = compute_backoff_delay(20, base_seconds=1.0, max_seconds=60.0, rng=rng)
+    assert 0 <= delay <= 60.0

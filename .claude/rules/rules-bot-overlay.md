@@ -68,3 +68,6 @@ kodun isimlendirmesi İngilizce: `CommandRouter`, `resolve_card_reference()`, `C
 `src/ingest/` abstracts the Kick connection. Şu an resmi olmayan Pusher WS kullanılıyor,
 ileride resmi webhook API'ına geçilecek. **This migration must be a single-file change** —
 never leak Kick-specific types past the ingest boundary; convert to a `ChatMessage` object.
+
+Message loss during an outage is permanent — no buffering, no replay. Downstream consumers
+(activity tracking, eddie earning) must tolerate gaps rather than assume every message was seen.

@@ -13,11 +13,12 @@ Bir madde 30 dakikadan uzun sürüyorsa alt maddelere böl.
     (`docker compose up -d && uv run --env-file .env python scripts/migrate.py`).
 - [x] Redis connection, stream mode key
 - [x] `src/kickcard/ingest/` — Pusher WS connection, raw message -> `ChatMessage`
-  - [ ] Abonelik / takip / hediye abonelik WS olaylarını parse et (ekonomi kazanım kuralları
-    bunlara bağlı)
-- [ ] Reconnect + outage resilience (yayın 6 saat sürüyor)
+- [x] Reconnect + outage resilience (yayın 6 saat sürüyor)
 - [ ] `economy/ledger.py` — balance changes + ledger entries, negative balance guard
 - [ ] Activity window and per-stream cap
+  - [ ] Abonelik / takip / hediye abonelik WS olaylarını parse et (ekonomi kazanım kuralları
+    bunlara bağlı)
+  - [ ] Bot hesaplarını eddie kazanımından dışla (BotRix vb. — dışlama listesi bot/ katmanında)
 - [ ] `!eddie` command + chat reply
 - [ ] **Bir yayın boyunca sessizce çalıştır, `ledger_entry` tablosunu incele**
   - [ ] `tests/economy/test_ledger_reconciliation.py` — bir oyuncu için `ledger_entry` toplamı
@@ -82,3 +83,10 @@ Bir madde 30 dakikadan uzun sürüyorsa alt maddelere böl.
   mesajı payload şeması (alan adları, `sender.identity`/`badges` yapısı) ve `pusher:subscribe`'ın
   `socket_id` olmadan çalıştığı varsayımı, gerçek trafikte teyit edilmeli. Sorun çıkarsa düzeltme
   tek dosyada kalır: `src/kickcard/ingest/pusher_client.py`.
+  **Güncelleme:** kullanıcı bağlantı/ping-pong/basit reconnect'i canlı Kick trafiğinde doğruladı —
+  varsayımlar doğru çıktı.
+- 2026-08-31: Reconnect + outage resilience eklendi: exponential backoff (full jitter),
+  `ConnectionState` (`CONNECTING`/`CONNECTED`/`RECONNECTING`) gözlemlenebilirliği, `open_timeout`,
+  outage penceresi loglama. **Bu davranış (backoff büyümesi, stabil bağlantı sonrası sıfırlanma,
+  outage log'ları) henüz gerçek bir kesintiyle canlı doğrulanmadı** — sadece saf
+  `compute_backoff_delay` fonksiyonu test edildi.
