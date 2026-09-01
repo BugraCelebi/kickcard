@@ -14,7 +14,7 @@ Bir madde 30 dakikadan uzun sürüyorsa alt maddelere böl.
 - [x] Redis connection, stream mode key
 - [x] `src/kickcard/ingest/` — Pusher WS connection, raw message -> `ChatMessage`
 - [x] Reconnect + outage resilience (yayın 6 saat sürüyor)
-- [ ] `economy/ledger.py` — balance changes + ledger entries, negative balance guard
+- [x] `economy/ledger.py` — balance changes + ledger entries, negative balance guard
 - [ ] Activity window and per-stream cap
   - [ ] Abonelik / takip / hediye abonelik WS olaylarını parse et (ekonomi kazanım kuralları
     bunlara bağlı)
@@ -90,3 +90,12 @@ Bir madde 30 dakikadan uzun sürüyorsa alt maddelere böl.
   outage penceresi loglama. **Bu davranış (backoff büyümesi, stabil bağlantı sonrası sıfırlanma,
   outage log'ları) henüz gerçek bir kesintiyle canlı doğrulanmadı** — sadece saf
   `compute_backoff_delay` fonksiyonu test edildi.
+- 2026-08-31: `economy/ledger.py` (`credit`/`debit`, `Currency`, `InsufficientBalanceError`,
+  `PlayerNotFoundError`) ve `store/db.py` (`get_pg_connection`, async psycopg) eklendi.
+  `tests/economy/test_ledger.py` gerçek docker-compose Postgres'ine karşı çalışıp geçti (6 canlı
+  entegrasyon testi dahil — nested-transaction/SAVEPOINT varsayımı da doğrulandı).
+  **Platform notu:** Windows'ta async psycopg, varsayılan `ProactorEventLoop` altında
+  `psycopg.InterfaceError` fırlatıyor; `asyncio.run(..., loop_factory=lambda:
+  asyncio.SelectorEventLoop(selectors.SelectSelector()))` gerekiyor. Bunu testte çözdük ama
+  `bot/`/`api/` entrypoint'leri yazılırken (Postgres'e dokunan her async giriş noktası) aynı
+  sorun tekrar çıkacak — o zaman hatırlanmalı.
