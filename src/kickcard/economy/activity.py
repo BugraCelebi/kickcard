@@ -11,6 +11,7 @@ import psycopg
 from redis.asyncio import Redis
 
 from kickcard.economy.ledger import Currency, credit
+from kickcard.store.db import get_pg_connection
 from kickcard.store.player import upsert_player
 from kickcard.store.stream_mode import StreamMode, get_stream_mode
 from kickcard.store.stream_session import get_stream_session
@@ -31,6 +32,7 @@ ACTIVITY_WINDOW_SECONDS = 600
 GRANT_INTERVAL_SECONDS = 300
 PER_STREAM_ACTIVITY_CAP = 400
 ACTIVITY_KIND = "activity"
+GRANTER_FAILURE_ALERT_THRESHOLD = 3
 
 # Set once when a granting tick finds no session, cleared when one reappears, so a six-hour
 # stream logs this once instead of every five minutes.
@@ -131,15 +133,45 @@ async def grant_activity_eddies(
     return granted
 
 
-async def run_activity_granter(client: Redis, conn: psycopg.AsyncConnection[Any]) -> None:
+async def run_activity_granter(client: Redis) -> None:
     """Grant activity eddies every GRANT_INTERVAL_SECONDS, forever.
 
     Uses wall-clock time, the same base callers pass to record_chat_activity — the two are
     compared against each other, so they must not mix clocks.
     """
+    consecutive_failures = 0
     while True:
         await asyncio.sleep(GRANT_INTERVAL_SECONDS)
         try:
-            await grant_activity_eddies(client, conn, now=time.time())
-        except Exception:
-            logger.exception("Activity granting tick failed, continuing")
+            # A fresh connection per tick. A six-hour stream outlives any single connection
+            # (Postgres restart, network blip), and reusing a broken one would fail silently
+            # forever: the task stays alive, chat keeps flowing into Redis, and nobody earns
+            # anything. The context manager also commits the tick's work on exit.
+            async with await get_pg_connection() as conn:
+                await grant_activity_eddies(client, conn, now=time.time())
+        except Exception as exc:
+            consecutive_failures += 1
+            if consecutive_failures == 1:
+                logger.warning("Activity granting tick failed, will retry", exc_info=True)
+            elif consecutive_failures >= GRANTER_FAILURE_ALERT_THRESHOLD:
+                logger.error(
+                    "Activity granting has failed %d ticks in a row (~%d min) — no eddies are "
+                    "being granted: %s: %s",
+                    consecutive_failures,
+                    consecutive_failures * GRANT_INTERVAL_SECONDS // 60,
+                    type(exc).__name__,
+                    exc,
+                )
+            else:
+                logger.warning(
+                    "Activity granting tick failed again (%d): %s: %s",
+                    consecutive_failures,
+                    type(exc).__name__,
+                    exc,
+                )
+        else:
+            if consecutive_failures:
+                logger.info(
+                    "Activity granting recovered after %d failed ticks", consecutive_failures
+                )
+            consecutive_failures = 0

@@ -20,7 +20,7 @@ Bir madde 30 dakikadan uzun sürüyorsa alt maddelere böl.
     ortam değişkeninden, `economy/activity.py` tarafından okunuyor)
 - [ ] `!eddie` command + chat reply
 - [ ] **Bir yayın boyunca sessizce çalıştır, `ledger_entry` tablosunu incele**
-  - [ ] `tests/economy/test_ledger_reconciliation.py` — bir oyuncu için `ledger_entry` toplamı
+  - [x] `tests/economy/test_ledger_reconciliation.py` — bir oyuncu için `ledger_entry` toplamı
     (eddies ve dust ayrı ayrı) `player.eddies` / `player.dust` ile eşleşiyor mu, test et
 
 ## Sprint 1 — Cards and packs
@@ -42,7 +42,9 @@ Bir madde 30 dakikadan uzun sürüyorsa alt maddelere böl.
   - [ ] Yetki kontrolü için `sender.identity.badges` alanını ingest'te `ChatMessage`'a taşı
     (broadcaster/moderator rozeti)
   - [ ] `!mod` ile canlı moda ilk geçişte `start_stream_session()` tetiklensin — aynı yayın
-    içindeki mod değişimleri (GAME→SILENT→GAME) yeni oturum BAŞLATMAMALI, yoksa tavan sıfırlanır
+    içindeki mod değişimleri (GAME→SILENT→GAME) yeni oturum BAŞLATMAMALI, yoksa tavan sıfırlanır.
+    `scripts/start_session.py` ve `scripts/set_mode.py` aynı primitifleri (`start_stream_session()`,
+    `set_stream_mode()`) çağırıyor; `!mod` da bunları kullansın, mantığı kopyalamasın
 - [ ] Chat hygiene: silent on success, 60s batched summary, global throttle
 - [ ] **Yayında duyur — ilk gerçek test**
 
@@ -61,6 +63,8 @@ Bir madde 30 dakikadan uzun sürüyorsa alt maddelere böl.
 - [ ] `!sıralama` + stream closing scene
 - [ ] Anti-abuse: account age threshold, first 3 messages earn nothing
 - [ ] `BUSY` mode auto-trigger
+- [ ] Test boilerplate'ini `conftest.py`'ye çıkar (`_run`, `_connect_pg`, `_insert_test_player`
+  üç dosyada tekrarlanıyor)
 
 ## Sprint 4 — Balance
 
@@ -99,6 +103,15 @@ Bir madde 30 dakikadan uzun sürüyorsa alt maddelere böl.
   outage penceresi loglama. **Bu davranış (backoff büyümesi, stabil bağlantı sonrası sıfırlanma,
   outage log'ları) henüz gerçek bir kesintiyle canlı doğrulanmadı** — sadece saf
   `compute_backoff_delay` fonksiyonu test edildi.
+- 2026-09-01: Bot entrypoint hazır (`src/kickcard/bot/main.py` + `scripts/start_session.py`,
+  `scripts/set_mode.py`). Çalıştırma sırası README'de: session → mod → bot. Bot Kick'e hiçbir şey
+  yazmıyor. **Bu sırada bulunup düzeltilen sessiz hata:** `run_activity_granter` uzun ömürlü tek
+  bir bağlantı alıyordu; `upsert_player`'ın açtığı örtük transaction hiç commit edilmiyordu (credit'in
+  `conn.transaction()`'ı içine SAVEPOINT olarak giriyordu), yani hiçbir eddie kalıcılaşmıyordu ve
+  6 saat açık kalan bir transaction oluşuyordu. Testler yakalayamamıştı çünkü kasten rollback edip
+  aynı bağlantıdan okuyorlar. Granter artık tick başına kendi bağlantısını açıyor (context manager
+  çıkışta commit ediyor), DB kesintisinden sonra kendiliğinden toparlanıyor, ve 3 ardışık
+  başarısızlıkta `error` seviyesine yükseliyor. Ayrı bir `psql` bağlantısından doğrulandı.
 - 2026-09-01: Aktiflik penceresi + tavan eklendi (`economy/activity.py`, `store/stream_session.py`,
   `store/player.py`). Sıcak yol (her mesaj) sadece 2 Redis yazması; DB işleri 5 dk'lık tick'te.
   Session **tembel oluşturulmuyor** — Redis restart'ında tavanın sıfırlanıp herkesin ikinci kez 400
