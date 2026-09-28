@@ -143,13 +143,13 @@ def test_grant_is_clamped_to_the_per_stream_cap() -> None:
         user_id = random.randint(10**9, 2**62)
         try:
             await record_chat_activity(client, user_id=user_id, username="grinder", now=NOW)
-            await client.hset(earned_key(session_id), str(user_id), "395")
+            await client.hset(earned_key(session_id), str(user_id), "495")
 
             assert await grant_activity_eddies(client, conn, now=NOW) == 1
 
-            # Clamped to 5 so the total lands exactly on the 400 cap, not 405.
+            # Clamped to 5 so the total lands exactly on the 500 cap, not 505.
             assert await _read_ledger_kinds(conn, user_id) == [("activity", "eddies", 5)]
-            assert await client.hget(earned_key(session_id), str(user_id)) == "400"
+            assert await client.hget(earned_key(session_id), str(user_id)) == "500"
         finally:
             await conn.rollback()
             await conn.close()
@@ -167,7 +167,7 @@ def test_viewer_at_the_cap_earns_nothing_more() -> None:
         user_id = random.randint(10**9, 2**62)
         try:
             await record_chat_activity(client, user_id=user_id, username="capped", now=NOW)
-            await client.hset(earned_key(session_id), str(user_id), "400")
+            await client.hset(earned_key(session_id), str(user_id), "500")
 
             assert await grant_activity_eddies(client, conn, now=NOW) == 0
             assert await _read_ledger_kinds(conn, user_id) == []

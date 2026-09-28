@@ -30,7 +30,7 @@ async def _redis_call[T](result: Awaitable[T] | T) -> T:
 ACTIVITY_GRANT_EDDIES = 10
 ACTIVITY_WINDOW_SECONDS = 600
 GRANT_INTERVAL_SECONDS = 300
-PER_STREAM_ACTIVITY_CAP = 400
+PER_STREAM_ACTIVITY_CAP = 500
 ACTIVITY_KIND = "activity"
 GRANTER_FAILURE_ALERT_THRESHOLD = 3
 
@@ -55,6 +55,10 @@ def usernames_key(session_id: str) -> str:
 
 def earned_key(session_id: str) -> str:
     return f"kickcard:activity_earned:{session_id}"
+
+
+def capped_key(session_id: str) -> str:
+    return f"kickcard:activity_capped:{session_id}"
 
 
 async def record_chat_activity(
@@ -107,10 +111,14 @@ async def grant_activity_eddies(
     )
 
     granted = 0
+    capped = 0
     for raw_user_id in active_user_ids:
         earned = int(await _redis_call(client.hget(earned_key(session_id), raw_user_id)) or 0)
         grant = min(ACTIVITY_GRANT_EDDIES, PER_STREAM_ACTIVITY_CAP - earned)
         if grant <= 0:
+            # Measurement only, not a balance change — no ledger entry.
+            await _redis_call(client.hincrby(capped_key(session_id), raw_user_id, 1))
+            capped += 1
             continue
 
         user_id = int(raw_user_id)
@@ -130,6 +138,10 @@ async def grant_activity_eddies(
         granted += 1
 
     await client.zremrangebyscore(activity_key(session_id), "-inf", f"({window_start}")
+
+    if capped:
+        logger.info("Activity grant tick: %d viewer(s) hit the per-stream cap", capped)
+
     return granted
 
 
