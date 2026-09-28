@@ -208,7 +208,7 @@ v1'de **tek eksen** var: kazan → harca. RPG fazında konuştuğumuz ikinci eks
 | Abonelik | 300 | Her ay |
 | Hediye abonelik | 150 | Hediye edene |
 | Kicks bahşişi | 1 eddie / 1 Kick | |
-| Yayın başı tavan | **400** | Aktiflikten kazanılabilecek maksimum |
+| Yayın başı tavan | **500** | Aktiflikten kazanılabilecek maksimum |
 
 Tavan şart: 8 saat lurk edenle 1 saat katılan arasındaki fark saçmalaşmasın, tablo donmasın.
 
@@ -248,7 +248,7 @@ Ayrıca 3 bedava paket verilir, böylece ilk açılış deneyimini hemen yaşar.
 
 ### 4.5 Ekonomi sağlık kontrolü
 
-Ortalama bir izleyici (2 saatlik yayın, aktif) yayın başına ~400 eddie = **4 paket = 20 kart** kazanıyor. 30 kartlık setin tamamına ulaşması ~4-5 yayın sürer. Bu doğru aralık: ilk hafta hızlı ilerleme hissi, sonra koleksiyon tamamlama hedefi.
+İki yayında ölçülen gerçek veri: ortalama izleyici kazancı 129 ve 86 eddie, medyan 80 ve 50. 400+ eddie'ye ulaşan yalnızca en sadık izleyicilerin %3-8'i — "ortalama izleyici ~400 kazanır" varsayımı yanlış çıktı. Tavan 500'e çıkarıldı (bkz. `.claude/rules/economy.md`), ama bu artık ortalama izleyicinin ulaştığı bir eşik değil, en üstteki farm koruması. Koleksiyon tamamlama hızı gerçekte medyan izleyiciye göre şekilleniyor; daha fazla veri (bkz. `docs/progress.md` Sprint 4) toplanana kadar bu bölüm gözden geçirilmeye devam edecek.
 
 **Kırmızı çizgi:** v1'de eddie'nin tek harcama yeri paket açmak. Düello ödülü/bahsi bilinçli olarak ertelendi (bkz. Backlog), yani koleksiyonu tamamlayan oyuncu ekonomiden düşecek. 30 kartlık set ~5 yayında tamamlandığına göre bu, sistemin üzerinde çalışan bir sayaç — **ilk oyuncular koleksiyonu bitirmeden ikinci harcama kalemi hazır olmalı.**
 

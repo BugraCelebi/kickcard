@@ -19,7 +19,11 @@ paths:
 | Subscription | 300 per month |
 | Gifted sub | 150, to the gifter |
 | Kicks tip | 1 eddie per Kick |
-| **Per-stream activity cap** | **400** |
+| **Per-stream activity cap** | **500** |
+
+Gerekçe: yayınlar tipik olarak 4.5-5 saat sürüyor (54-60 tick); 400 tavanı 3s20'de doluyor ve en
+sadık izleyiciyi son 1-1.5 saat ödülsüz bırakıyordu. 500 = 4s10, tavan hâlâ devrede ama artık denge
+aracı değil farm koruması olarak çalışıyor.
 
 ## Packs
 
@@ -56,7 +60,7 @@ Starter deck cards **cannot be dusted.**
 - **Randomness is injected.** `PackOpener(rng)` — never call `random` at module level.
   Tests run with a fixed seed.
 - **Negative balances are impossible.** The debit path checks the balance and raises
-  `InsufficientBalance`. Kontrolü çağıran tarafa bırakma.
+  `InsufficientBalanceError`. Kontrolü çağıran tarafa bırakma.
 - Yeni bir eddie kaynağı veya harcama kalemi ekleme — bunlar ekonomi kararı, önce sor.
 
 ## Health check
