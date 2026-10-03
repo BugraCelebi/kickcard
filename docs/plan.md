@@ -248,7 +248,7 @@ Ayrıca 3 bedava paket verilir, böylece ilk açılış deneyimini hemen yaşar.
 
 ### 4.5 Ekonomi sağlık kontrolü
 
-İki yayında ölçülen gerçek veri: ortalama izleyici kazancı 129 ve 86 eddie, medyan 80 ve 50. 400+ eddie'ye ulaşan yalnızca en sadık izleyicilerin %3-8'i — "ortalama izleyici ~400 kazanır" varsayımı yanlış çıktı. Tavan 500'e çıkarıldı (bkz. `.claude/rules/economy.md`), ama bu artık ortalama izleyicinin ulaştığı bir eşik değil, en üstteki farm koruması. Koleksiyon tamamlama hızı gerçekte medyan izleyiciye göre şekilleniyor; daha fazla veri (bkz. `docs/progress.md` Sprint 4) toplanana kadar bu bölüm gözden geçirilmeye devam edecek.
+İki yayında ölçülen gerçek veri: ortalama izleyici kazancı 129 ve 86 eddie, medyan 80 ve 50. 400+ eddie'ye ulaşan yalnızca en sadık izleyicilerin %3-8'i — "ortalama izleyici ~400 kazanır" varsayımı yanlış çıktı. Tavan 500'e çıkarıldı (bkz. `.claude/rules/rules-economy.md`), ama bu artık ortalama izleyicinin ulaştığı bir eşik değil, en üstteki farm koruması. Koleksiyon tamamlama hızı gerçekte medyan izleyiciye göre şekilleniyor; daha fazla veri (bkz. `docs/progress.md` Sprint 4) toplanana kadar bu bölüm gözden geçirilmeye devam edecek.
 
 **Kırmızı çizgi:** v1'de eddie'nin tek harcama yeri paket açmak. Düello ödülü/bahsi bilinçli olarak ertelendi (bkz. Backlog), yani koleksiyonu tamamlayan oyuncu ekonomiden düşecek. 30 kartlık set ~5 yayında tamamlandığına göre bu, sistemin üzerinde çalışan bir sayaç — **ilk oyuncular koleksiyonu bitirmeden ikinci harcama kalemi hazır olmalı.**
 

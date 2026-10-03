@@ -80,7 +80,7 @@ Operasyon kuralları: bkz. `CLAUDE.md`.
 
 ## Sprint 2 — Duels
 
-- [ ] `src/game/engine.py` — pure function returning `TurnLog`
+- [ ] `src/kickcard/game/engine.py` — pure function returning `TurnLog`
 - [ ] Edge case tests (see `.claude/rules/rules-game-engine.md`)
 - [ ] `!deste` (with codes) + `!deste oto`
 - [ ] `!düello` / `!kabul` + 60s timeout
