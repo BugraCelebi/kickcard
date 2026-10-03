@@ -639,9 +639,9 @@ kontrolü **ve** `CHECK (eddies >= 0)`.
 
 ```
 CLAUDE.md
-.claude/rules/economy.md
-.claude/rules/game-engine.md
-.claude/rules/bot-overlay.md
+.claude/rules/rules-economy.md
+.claude/rules/rules-game-engine.md
+.claude/rules/rules-bot-overlay.md
 docs/plan.md
 ```
 
