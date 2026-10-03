@@ -1,4 +1,4 @@
-<!-- TARGET PATH: <project root>/.claude/rules/economy.md -->
+<!-- TARGET PATH: .claude/rules/rules-economy.md -->
 ---
 paths:
   - "src/kickcard/economy/**/*.py"
@@ -61,7 +61,28 @@ Starter deck cards **cannot be dusted.**
   Tests run with a fixed seed.
 - **Negative balances are impossible.** The debit path checks the balance and raises
   `InsufficientBalanceError`. Kontrolü çağıran tarafa bırakma.
+- **Long-running loops open a fresh Postgres connection per unit of work.** Never hold one
+  connection across ticks. Uzun ömürlü bağlantıda psycopg'nin örtük transaction'ı hiç commit
+  edilmez ve yazılanlar kalıcı olmaz (Sprint 0 granter hatası). Bağlantı `async with` ile açılır,
+  normal çıkışta commit, hatada rollback.
 - Yeni bir eddie kaynağı veya harcama kalemi ekleme — bunlar ekonomi kararı, önce sor.
+
+## Pack purchase constraints
+
+- Deferred purchase (SILENT): the debit and the vault record are written in one transaction.
+  No cards are drawn at this point.
+- Vault opening: drawing cards, updating pity and dust, and closing the vault record happen in
+  one transaction, same as a normal pack opening.
+- Pity sayacı Postgres'te tutulmalı. Redis'te tutulursa `activity.py`'deki `activity_earned`
+  sapmasının aynısı yaşanır: Postgres geri alınır, Redis alınmaz.
+- Hangi kartların çıkacağı transaction açılmadan önce hesaplanmalı (saf iş, oyun motoru kuralı).
+  Transaction içinde sadece yazma olmalı.
+- Sohbete ve overlay'e duyuru commit'ten sonra yapılmalı.
+- `collection.card_id` foreign key değil (kartlar `data/cards.json`'da). Kart numarası
+  koleksiyona yazılmadan önce kodda doğrulanmalı.
+- `ledger_entry.kind` değerleri düz string (enum olan `Currency`, `kind` değil). Paket alımıyla türler
+  artacak; bir `LedgerKind` enum'u ve veritabanında `kind` için CHECK kısıtı olup olmadığı
+  değerlendirilmeli.
 
 ## Health check
 

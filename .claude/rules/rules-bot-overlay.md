@@ -1,4 +1,4 @@
-<!-- TARGET PATH: <project root>/.claude/rules/bot-overlay.md -->
+<!-- TARGET PATH: .claude/rules/rules-bot-overlay.md -->
 ---
 paths:
   - "src/kickcard/bot/**/*.py"
@@ -65,9 +65,25 @@ kodun isimlendirmesi İngilizce: `CommandRouter`, `resolve_card_reference()`, `C
 
 ## Ingest
 
-`src/ingest/` abstracts the Kick connection. Şu an resmi olmayan Pusher WS kullanılıyor,
+`src/kickcard/ingest/` abstracts the Kick connection. Şu an resmi olmayan Pusher WS kullanılıyor,
 ileride resmi webhook API'ına geçilecek. **This migration must be a single-file change** —
 never leak Kick-specific types past the ingest boundary; convert to a `ChatMessage` object.
+Kick'in tarayıcı tarafı farklı bir realtime altyapısına geçmiş durumda; ayrıntı için
+`docs/progress.md` "Bilinen riskler".
 
 Message loss during an outage is permanent — no buffering, no replay. Downstream consumers
 (activity tracking, eddie earning) must tolerate gaps rather than assume every message was seen.
+
+## Async
+
+- **No `await` inside `finally` of an async generator.** GeneratorExit sırasında `await`
+  çalıştırmak hata verir; temizliği senkron yap ya da generator'ın dışına taşı.
+- **No blocking calls in async code.** `time.sleep`, senkron HTTP ve senkron DB çağrıları
+  event loop'u kilitler; async karşılıklarını kullan.
+- **Catch specific exceptions.** `except BaseException` yazma, `CancelledError` yukarı
+  yayılmalı. `except Exception` sadece "döngü asla durmasın" gereken üst seviye task'larda
+  ve logla birlikte kullanılır.
+- **Every external call has a timeout.** Kick, Redis ve Postgres çağrıları süresiz
+  beklemez.
+- **Windows: SelectorEventLoop.** Postgres'e dokunan her async giriş noktası
+  SelectorEventLoop kullanır.

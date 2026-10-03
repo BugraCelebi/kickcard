@@ -50,10 +50,38 @@ Bir madde 30 dakikadan uzun sürüyorsa alt maddelere böl.
 - [ ] Chat hygiene: silent on success, 60s batched summary, global throttle
 - [ ] **Yayında duyur — ilk gerçek test**
 
+## Sprint 1'e taşınan notlar
+
+Öğrenme sürecinde çıkan, başka yerde kayıtlı olmayan maddeler.
+
+Paket satın alma kısıtları: bkz. `.claude/rules/rules-economy.md`.
+
+**Bilinen ve kabul edilmiş davranış:**
+
+- `grant_activity_eddies` içinde Redis'teki `activity_earned` sayacı Postgres commit'inden önce
+  artıyor. Tick ortasında hata olursa Postgres geri alınıyor, Redis alınmıyor; ilgili oyuncunun
+  yayın tavanı en fazla 10 eddie erken doluyor. Hata eksik ödeme yönünde, ledger ile bakiye
+  tutarlı kalıyor. Şimdilik düzeltme yok.
+
+**Karar bekleyen:**
+
+- `!kayıt` gibi Türkçe karakterli komut adları: Python `"KAYIT".lower()` sonucu
+  `"kayit"`, `"kayıt"` değil. Komut eşleştirmesinde nasıl normalize edileceği komut
+  katmanı yazılırken kararlaştırılmalı.
+
+**Test boşlukları:**
+
+- [ ] `test_activity.py` yeni `activity_capped` sayacının arttığını ve özet logun basıldığını
+  kontrol etmiyor.
+- [ ] `debit` için sıfır miktar ve `credit` için boş sebep testleri yok gibi görünüyor; mutasyon
+  ile doğrulanmalı.
+
+Operasyon kuralları: bkz. `CLAUDE.md`.
+
 ## Sprint 2 — Duels
 
 - [ ] `src/game/engine.py` — pure function returning `TurnLog`
-- [ ] Edge case tests (see `.claude/rules/game-engine.md`)
+- [ ] Edge case tests (see `.claude/rules/rules-game-engine.md`)
 - [ ] `!deste` (with codes) + `!deste oto`
 - [ ] `!düello` / `!kabul` + 60s timeout
 - [ ] Overlay: turn-by-turn playback, core bars
@@ -77,7 +105,7 @@ Bir madde 30 dakikadan uzun sürüyorsa alt maddelere böl.
 ## Sprint 4 — Balance
 
 - [x] Per-stream activity cap 400'den 500'e çıkarıldı (`economy/activity.py`,
-  `.claude/rules/economy.md`, `plan.md` §4.1/§4.5). Gerekçe: yayınlar tipik 4.5-5 saat (54-60 tick)
+  `.claude/rules/rules-economy.md`, `plan.md` §4.1/§4.5). Gerekçe: yayınlar tipik 4.5-5 saat (54-60 tick)
   sürüyor; 400 tavanı 3s20'de doluyor ve en sadık izleyiciyi son 1-1.5 saati ödülsüz bırakıyordu.
   500 = 4s10, tavan hâlâ devrede ama artık ortalama izleyiciyi hedefleyen bir denge aracı değil,
   en üstteki farm koruması.

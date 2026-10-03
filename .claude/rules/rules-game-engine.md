@@ -1,4 +1,4 @@
-<!-- TARGET PATH: <project root>/.claude/rules/game-engine.md -->
+<!-- TARGET PATH: .claude/rules/rules-game-engine.md -->
 ---
 paths:
   - "src/kickcard/game/**/*.py"

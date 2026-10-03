@@ -61,7 +61,7 @@ Bunlar ihlal edilirse oyun sessizce bozulur. Bir tanesini bozman gerekiyorsa **�
 1. **`src/kickcard/game/` stays pure.** No DB, Redis, HTTP, clock or randomness. The duel engine is a
    deterministic function `(deck_a, deck_b) -> TurnLog`. Same input, same output, always.
 2. **Card stats are never hand-written.** Every card satisfies
-   `damage + hp + keyword_cost == cost * 25 + 10` (±5). `make test` enforces this. Test kırmızıysa
+   `damage + hp + keyword_cost == cost * 25 + 10` (±5). `tests/game/test_budget.py` enforces this (`uv run pytest`). Test kırmızıysa
    kartı düzelt, testi değil.
 3. **All balance changes go through `kickcard/economy/ledger.py`.** Every change writes a `ledger_entry`
    row with a non-empty reason. Never assign to `player.eddies` anywhere else.
@@ -82,3 +82,12 @@ Bunlar ihlal edilirse oyun sessizce bozulur. Bir tanesini bozman gerekiyorsa **�
 - Dosya adları `snake_case.py`, sınıflar `PascalCase`, sabitler `UPPER_SNAKE`.
 - Her yeni engine davranışı için önce test yaz, sonra kodu.
 - Commit mesajları İngilizce, imperative mood: `add pity counter to pack opener`.
+
+## Operasyon kuralları
+
+- Yayından önce `docker compose down -v` çalıştırılmaz. Veritabanı sıfırlanacaksa önce
+  `pg_dump` ile yedek alınır.
+- Canlıda doğrulanan değişiklik hemen commit edilir. (Tavan 500 bir süre sadece çalışma
+  kopyasında yaşadı, git 400 diyordu.)
+- `EDDIE_EXCLUDED_USERNAMES` doldurulurken bot adları sohbetten kopyalanır, elle küçük harf
+  yazılmaz (Türkçe noktasız ı ile Python `.lower()` uyuşmazlığı).

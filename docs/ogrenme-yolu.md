@@ -14,6 +14,9 @@ hazırlandı. Sırayla git; her modül bir öncekine dayanıyor.
 2. **Bozmaktan korkma.** Yerel veritabanı tek komutla sıfırlanıyor:
    `docker compose down -v && docker compose up -d && uv run --env-file .env python scripts/migrate.py`
    Git de her şeyi geri alıyor: `git checkout -- .`
+   **Dikkat:** bu iki komut geri alınamaz. `git checkout -- .` commit edilmemiş tüm değişiklikleri,
+   `docker compose down -v` veritabanındaki tüm veriyi siler. Sadece commit edilmemiş gerçek iş
+   yokken ve veritabanında korunacak veri yokken güvenlidir.
 3. **Anlamadığın yerde dur.** "Sonra anlarım" diye geçme; bu yığında her katman bir öncekine
    dayanıyor, boşluk büyüyerek ilerliyor.
 
