@@ -60,8 +60,15 @@ kodun isimlendirmesi İngilizce: `CommandRouter`, `resolve_card_reference()`, `C
 - One scene at a time. Redis queue; duels always preempt pack openings.
 - If the queue exceeds 10, new `!paket` requests are rejected.
 - Fully transparent when idle — no visible DOM elements left behind.
-- Cards have **no illustrations** — typographic data files. One HTML template plus a
-  rarity-based CSS class.
+- Cards **have illustrations.** The visual spec lives in `docs/card-design.md`; do not
+  duplicate it here. One HTML template; rarity, type and set are selected with CSS classes.
+- The keyword reminder line is generated from the keyword dictionary, never hand-written on a card.
+- Duels use the **mini card**, not the full card (`docs/card-design.md` section 11).
+- Duel labels show only the keyword name and value (örn. "ZİNCİR +25").
+- Panel size and position are configurable; there is a compact mode.
+- The overlay's own visual theme (panel, core bar, text) is not decided yet and is independent of
+  the card design. Colors and fonts come from variables in a single theme CSS file; changing the
+  theme never touches HTML or JS.
 
 ## Ingest
 

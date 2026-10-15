@@ -24,9 +24,12 @@ Bir madde 30 dakikadan uzun sürüyorsa alt maddelere böl.
 
 ## Sprint 1 — Cards and packs
 
+- [ ] Keyword sözlüğü + kart şeması (`set` alanı, `text` yok, legendary-only keyword işareti)
+- [ ] İlk set: isim, tema, 30 kart tasarımı (Buğra)
+- [ ] Set simülasyonu: hiçbir deste %60 üstü kazanmıyor, REBIRTH maliyeti doğrulandı
 - [ ] `data/cards.json` — 30 cards with codes
 - [ ] `tests/game/test_budget.py` — budget formula check
-- [ ] Card HTML/CSS component (typographic, no illustrations)
+- [ ] Card HTML/CSS component (docs/card-design.md: full card, mini card, token)
 - [ ] `PackOpener` — slot structure, pity, atomic transaction
 - [ ] `tests/economy/test_simulation.py` — 1000 players, 5 streams
 - [ ] `!kayıt` -> starter deck + 3 free packs
@@ -68,6 +71,9 @@ Paket satın alma kısıtları: bkz. `.claude/rules/rules-economy.md`.
 - `!kayıt` gibi Türkçe karakterli komut adları: Python `"KAYIT".lower()` sonucu
   `"kayit"`, `"kayıt"` değil. Komut eşleştirmesinde nasıl normalize edileceği komut
   katmanı yazılırken kararlaştırılmalı.
+- Yeni oyuncu açığı: kurulmuş deste rastgele desteyi simülasyonda %94-99 yeniyor. Önlem açık
+  (bkz. `docs/plan.md` §9, §10).
+- Overlay görsel teması (panel, çekirdek barı, yazılar). Kart tasarımından bağımsız.
 
 **Test boşlukları:**
 
@@ -84,7 +90,8 @@ Operasyon kuralları: bkz. `CLAUDE.md`.
 - [ ] Edge case tests (see `.claude/rules/rules-game-engine.md`)
 - [ ] `!deste` (with codes) + `!deste oto`
 - [ ] `!düello` / `!kabul` + 60s timeout
-- [ ] Overlay: turn-by-turn playback, core bars
+- [ ] Overlay: turn-by-turn playback, core bars, mini kart, kompakt mod, ayarlanabilir konum,
+  tema CSS değişkenleri
 - [ ] Match records -> `duel` table
 
 ## Sprint 3 — Polish
@@ -182,3 +189,8 @@ Sprint 0'dan devreden, henüz çözülmemiş riskler.
   aynı bağlantıdan okuyorlar. Granter artık tick başına kendi bağlantısını açıyor (context manager
   çıkışta commit ediyor), DB kesintisinden sonra kendiliğinden toparlanıyor, ve 3 ardışık
   başarısızlıkta `error` seviyesine yükseliyor. Ayrı bir `psql` bağlantısından doğrulandı.
+- 2026-10-15: Game design revizyonu (sadece belgeler). Simülasyon, çekirdek 30 ve +1 enerjiyle
+  maçların ~3 turda bittiğini ve maliyeti 5 kartların hiç sahaya çıkmadığını gösterdi. Yeni
+  sabitler: `CORE_HP = 100`, `ENERGY_PER_TURN = 2`. Tipler POWER > TRICK > AGILITY > POWER;
+  v1 keyword seti 8 tane (ECHO ve RECYCLE backlog'a). İlk legendary'nin imza yeteneği REBIRTH
+  (maliyet 15) seçildi. Kart görsel spesifikasyonu `docs/card-design.md` eklendi.

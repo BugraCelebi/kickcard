@@ -68,25 +68,30 @@ Bu, projenin en önemli şablonu. Her kart tam olarak bu alanlara sahip, fazlas�
 ```json
 {
   "id": "C025",
+  "set": "s1",
   "code": "CYP",
   "name": "Cyberpsycho",
-  "type": "WEAPON",
+  "type": "POWER",
   "rarity": "epic",
   "cost": 5,
-  "damage": 70,
-  "hp": 40,
+  "damage": 55,
+  "hp": 45,
   "keyword": "FIRST_STRIKE",
   "keyword_value": null,
-  "text": "Vuruşunu önce yapar.",
   "lore": "Beş implant fazlası. Üç mahalle eksik."
 }
 ```
 
+Bütçe: 55 + 45 + 35 (FIRST_STRIKE) = 135 = 5 × 25 + 10.
+
+Kartta `text` alanı yok. Keyword'ün hatırlatma yazısı keyword sözlüğünden üretilir (bkz. §2.2).
+
 | Alan | Aralık | Not |
 |---|---|---|
-| `code` | 3 harf, tekil | Komutlarda kullanılır (`!deste sok,kur,...`) |
-| `type` | HACK / WEAPON / CYBERDECK | Üçgen aşağıda |
-| `rarity` | common / uncommon / rare / epic / legendary | **Güçle ilgisi yok** — sadece bulunabilirlik |
+| `set` | set kimliği | Kartın ait olduğu set. `"s1"` geçici kimlik; ilk setin adı açık karar (§10) |
+| `code` | 3 harf, tekil | Komutlarda kullanılır (`!deste sok,kur,...`). Tüm setlerde tekil |
+| `type` | POWER / TRICK / AGILITY | Üçgen aşağıda |
+| `rarity` | common / uncommon / rare / epic / legendary | **Güçle ilgisi yok**, sadece bulunabilirlik. Oyuncuya görünen adlar: Sıradan, Sıra Dışı, Nadir, Destansı, Efsanevi |
 | `cost` | 1–5 | Enerji |
 | `damage` | 10–70 | |
 | `hp` | 15–95 | |
@@ -95,13 +100,17 @@ Bu, projenin en önemli şablonu. Her kart tam olarak bu alanlara sahip, fazlas�
 **Tip üçgeni** — kendi kendini açıklayacak şekilde kurgulandı, oyuncu ezberlemek zorunda kalmasın:
 
 ```
-   HACK  ──────►  CYBERDECK      HACK > CYBERDECK   donanımı hack'lersin
-     ▲                 │         CYBERDECK > WEAPON implant/zırh mermiyi emer
-     │                 ▼         WEAPON > HACK      kurşun koda bakmaz
-   WEAPON ◄────────────┘
+   POWER  ──────►  TRICK         POWER > TRICK     kaba kuvvet hileyi ezer
+     ▲               │           TRICK > AGILITY   hile çevik olanı tuzağa düşürür
+     │               ▼           AGILITY > POWER   çevik olan güçlüden kaçar
+   AGILITY ◄─────────┘
 ```
 
-Avantajlı tip **+10 hasar** verir (çarpan değil, sabit — okunması ve dengelenmesi kolay).
+Oyuncuya görünen adlar: **Güç > Hile > Çeviklik > Güç.**
+
+Avantajlı tip **+10 hasar** verir (çarpan değil, sabit; okunması ve dengelenmesi kolay). Bonus **sadece kart karta vuruşta** geçerlidir. Boş slota (çekirdeğe) vuruşta tip bonusu yoktur.
+
+Kartlar birden fazla temalı setten gelebilir. Setler mekaniği (tipler, keyword'ler, bütçe) paylaşır ve aynı destede karışabilir; kart adı, illüstrasyon ve lore sete özeldir.
 
 ### 2.2 Güç bütçesi formülü
 
@@ -125,15 +134,34 @@ Kart dengeli ise:  spend ≈ budget  (±5 tolerans)
 
 **Keyword maliyetleri** (bütçeden düşülür):
 
-| Keyword | Etki | Maliyet |
+| Keyword | Maliyet | Kural |
 |---|---|---|
-| `FIRST_STRIKE` | Hasarını önce verir; rakip ölürse karşılık veremez | 25 |
-| `ARMOR_X` | Gelen her hasarı X azaltır (X = 5/10/15) | X × 2 |
-| `PIERCE` | Hasarının yarısı doğrudan çekirdeğe gider | 20 |
-| `ECHO` | Öldüğünde rakip aktif karta 15 hasar | 15 |
-| `OVERLOAD` | İlk turunda +20 hasar, sonraki turlarda −10 | 10 |
+| `FIRST_STRIKE` | 35 | Önce vurur; rakip ölürse karşılık veremez. İki taraf da FIRST_STRIKE ise eşzamanlı. |
+| `ARMOR_X` (X = 5/10/15) | X + 10 | Karta gelen her vuruşu X azaltır. PIERCE'ın çekirdeğe giden kısmını ve taşmayı ayrıca azaltmaz. |
+| `PIERCE` | 15 | Tip bonusu eklendikten sonra hasarın yarısı (aşağı yuvarlanır) doğrudan çekirdeğe, kalanı karta. |
+| `OVERLOAD` | 20 | Kartın sahadaki ilk çarpışma turunda +20, sonraki turlarda -10 (en az 0). Boş slota vuruşta da geçerli. |
+| `HANDOFF` | 30 | Ölünce sahibinin destedeki sıradaki kartı +20 hasar ve +20 canla girer. Birden fazla HANDOFF üst üste biner. |
+| `LINK` | 20 | Sahibinin bir önceki sahaya çıkardığı deste kartı aynı tipteyse +25 hasar. Token'lar sayılmaz. |
+| `PROTOCOL` | 20 | Sahibinin destesindeki (sahadaki değil) kendisi hariç her aynı tip kart için +10 hasar, en fazla +40. |
+| `SPAWN` | 15 | Ölünce aynı slota kendi tipinde, keyword'süz, 25/25 bir token girer. Sıradaki kart token ölene kadar bekler. Token'ın ölümü hiçbir şeyi tetiklemez. |
 
-Nadirliğin işi güç değil, **karmaşıklık**: common'lar keyword'süz düz kartlar, legendary'ler keyword'lü ve niş. Aynı bütçe, farklı şekil.
+Kart başına en fazla 1 keyword. Ölüm tetikleyicileri (HANDOFF, SPAWN, REBIRTH) Temizlik adımında çalışır.
+
+**Keyword sözlüğü tek kaynaktır.** Keyword'ün adı, maliyeti ve hatırlatma yazısı oradan okunur; kartlara elle yazılmaz. Bir değer değişince bütün kartların metni kendiliğinden güncellenir.
+
+Sinerji değerleri (HANDOFF, LINK, PROTOCOL, SPAWN) başlangıç değeridir; kart seti hazır olunca simülasyonla ölçülecek. Herhangi bir deste havuza karşı %60 üstü kazanıyorsa değerler düşürülür veya karta binen toplam bonusa tavan konur.
+
+ECHO ve RECYCLE v1'den çıkarıldı (bkz. Backlog).
+
+Nadirliğin işi güç değil, **karmaşıklık**: common'lar keyword'süz düz kartlar, legendary'ler keyword'lü ve niş. Aynı bütçe, farklı şekil. Bunun en uç hali imza yeteneğidir: legendary'yi farklı kılan güç değil, başka hiçbir kartta olmayan bir davranış. Legendary'nin heyecanı gösteriden gelir: özel paket açılış animasyonu, chat'e düşen nadir olay.
+
+#### İmza yeteneği
+
+- Her legendary kart, başka hiçbir kartta olmayan bir imza yeteneği taşıyabilir.
+- İmza yeteneği, keyword sözlüğünde "yalnızca legendary" işaretli bir keyword'dür. O kartın tek keyword'üdür ve bütçe formülüyle fiyatlanır.
+- İlk legendary için seçilen: **`REBIRTH` (Diriliş), maliyet 15.** Seçim geçicidir, ileride değişebilir.
+
+**REBIRTH kuralı:** Kart ilk kez öldüğünde, kartın o anki maksimum canının yarısıyla (5'in katına aşağı yuvarlanır, en az 5) aynı slota geri döner. Hasar bonusları korunur. Geri dönüş yeni bir konuşlanma sayılmaz; slot dolu kaldığı için sıradaki kart bekler. Öldüğü vuruştaki taşma hasarı yine çekirdeğe geçer. İkinci ölüm kalıcıdır.
 
 ### 2.3 Veritabanı tabloları
 
@@ -151,6 +179,8 @@ duel            (id PK, player_a, player_b, winner,
 ledger_entry    (id PK, kick_user_id, kind, amount, reason, created_at)
 ```
 
+`duel.turn_log` her kartın o maçtaki statlarının anlık kopyasını içerir; sonradan yapılan denge değişiklikleri eski replay'leri bozmaz.
+
 `ledger_entry` şart — ekonomide bir şey ters gittiğinde nereden bozulduğunu ancak buradan bulursun.
 
 ---
@@ -160,7 +190,7 @@ ledger_entry    (id PK, kick_user_id, kind, amount, reason, created_at)
 ### 3.1 Kurulum
 
 - Her oyuncu **5 kartlık sıralı** bir deste kurar. Aynı karttan 1 kopya.
-- Her oyuncunun bir **Çekirdeği** var: **30 can**.
+- Her oyuncunun bir **Çekirdeği** var: **100 can**.
 - Her oyuncunun bir **aktif slotu** var (tek kart).
 - Enerji 0'dan başlar.
 
@@ -168,15 +198,15 @@ ledger_entry    (id PK, kick_user_id, kind, amount, reason, created_at)
 
 Her tur, iki oyuncu için eşzamanlı işler:
 
-1. **Enerji:** Her oyuncu +1 enerji kazanır (üst limit 10).
+1. **Enerji:** Her oyuncu +2 enerji kazanır (0'dan başlar, üst limit 10).
 2. **Konuşlanma:** Aktif slot boşsa, destedeki **sıradaki** kart kontrol edilir. Enerji yetiyorsa sahaya çıkar, maliyeti düşülür. Yetmiyorsa slot boş kalır ve enerji birikmeye devam eder.
 3. **Çarpışma:**
-   - İki tarafta da kart varsa: **eşzamanlı** hasar. Tip avantajı varsa **+10 hasar**.
+   - İki tarafta da kart varsa: **eşzamanlı** hasar. Tip avantajı varsa **+10 hasar** (sadece kart karta).
    - `FIRST_STRIKE` varsa o kart önce vurur; rakip ölürse karşılık veremez.
-   - Bir tarafın slotu boşsa: karşı kart hasarını **doğrudan çekirdeğe** verir.
+   - Bir tarafın slotu boşsa: karşı kart hasarını **doğrudan çekirdeğe** verir. Tip bonusu eklenmez.
 4. **Taşma:** Kartı öldüren hasarın fazlası çekirdeğe geçer.
    *Örnek: 55 hasar, 40 canlı karta → kart ölür, 15 hasar çekirdeğe.*
-5. **Temizlik:** Canı ≤ 0 olan kartlar sahadan çıkar. `ECHO` tetiklenir.
+5. **Temizlik:** Canı ≤ 0 olan kartlar sahadan çıkar. Ölüm tetikleyicileri (`HANDOFF`, `SPAWN`, `REBIRTH`) burada çalışır.
 
 ### 3.3 Kazanma
 
@@ -186,8 +216,9 @@ Her tur, iki oyuncu için eşzamanlı işler:
 ### 3.4 Neden bu tasarım
 
 - **Maç içi karar yok** → 200 kişi oynayabilir, kimse AFK kalamaz, maç 30 saniyede animasyonla akar.
-- **Skill deste sıralamasında.** Pahalı kartı öne koyarsan 4 tur boşta kalıp çekirdeğinden yersin. Ucuz kartla açarsan tempo alırsın ama sonu zayıf kalır. Bu tek karar bile ciddi bir meta üretiyor.
+- **Skill deste sıralamasında.** Pahalı kartı öne koyarsan 2 tur boşta kalıp çekirdeğinden yersin. Ucuz kartla açarsan tempo alırsın ama sonu zayıf kalır. Bu tek karar bile ciddi bir meta üretiyor.
 - **Çekirdek barı** overlay'de okunması en kolay şey. İzleyici kuralları bilmese bile kimin kazandığını görüyor.
+- **Neden çekirdek 100 ve +2 enerji.** Çekirdek 30 ve +1 enerjiyle maçlar ~3 turda bitiyordu, maliyeti 5 olan kartlar hiç sahaya çıkmıyordu ve "ucuzdan pahalıya diz" tek doğru cevap oluyordu. Çekirdek 100 ve +2 enerji ile sıralama kararı gerçek beceri haline geldi; sinerji keyword'leri de deste kurmayı yönlendiriyor.
 
 ---
 
@@ -262,7 +293,7 @@ Ayrıca 3 bedava paket verilir, böylece ilk açılış deneyimini hemen yaşar.
 | `!eddie` | Bakiye + toz gösterir | 30 sn |
 | `!paket` | Paket açar → overlay kuyruğuna girer | Yayın başı 3 |
 | `!koleksiyon` | Sahip olunan kart sayısı, eksikler | 60 sn |
-| `!kart <kod/ad>` | Tek kartın statlarını chat'e yazar | 15 sn |
+| `!kart <kod/ad>` | Tek kartın statlarını ve keyword hatırlatma yazısını chat'e yazar (tek satır) | 15 sn |
 | `!deste sok,kur,rip,cyp,krb` | Desteyi sıralı olarak kurar (kart kodlarıyla) | 10 sn |
 | `!deste oto` | Sistem koleksiyondan en iyi 5'i seçip sıralar | 30 sn |
 | `!deste` | Mevcut desteyi gösterir | 30 sn |
@@ -305,6 +336,8 @@ Sayı yerine kod kullanmanın sebebi: `!deste 17,4,22,9,31` yazan oyuncu 17'nin 
 | **Düello** | 30–40 sn | Kabul edilmiş meydan okuma |
 | **Sıralama** | 15 sn | Yayın kapanışı / manuel |
 
+Overlay panelinin boyutu ve konumu ayarlanabilir; kalabalık sahneler için kompakt seçenek vardır.
+
 ### 6.2 Kuyruk mantığı
 
 Overlay aynı anda tek şey gösterebiliyor. Redis'te tek bir kuyruk:
@@ -337,9 +370,13 @@ Teknik: mod Redis'te tek bir anahtar. Overlay WS üzerinden değişimi dinler ve
 
 ### 6.4 Görsel yön
 
-**İllüstrasyon yok.** Kart = tipografik veri dosyası: mono font, neon çizgi, glitch, veri satırları. Sebep: 30 karta çizim üretmek projeyi öldürür; HTML/CSS kartı ise 5 dakikada yeni kart eklemene izin verir ve kanalın estetiğine zaten uyuyor.
+**Kartlarda illüstrasyon var.** Kartın görsel spesifikasyonu (ölçüler, nadirlik ve tip renkleri, simgeler, set malzemeleri, token, mini kart) `docs/card-design.md`'dedir; bu belge görsel ayrıntıyı tekrarlamaz.
 
-Kart bileşeni tek bir HTML template + nadirliğe göre CSS class. Overlay ve (ileride) site aynı bileşeni kullanır.
+- Keyword hatırlatma yazısı kartın üstünde gösterilir ama keyword sözlüğünden üretilir (§2.2).
+- Düelloda tam kart yerine **mini kart** kullanılır (`docs/card-design.md` bölüm 11).
+- Overlay düello etiketlerinde sadece keyword adı ve değeri görünür (örn. "ZİNCİR +25").
+- Overlay'in kendi görsel teması (panel, çekirdek barı, yazılar) henüz belirlenmedi ve kart tasarımından bağımsızdır. Tema tek bir CSS dosyasındaki değişkenlerden okunur; tema değişince HTML ve JS değişmez.
+- Kart bileşeni tek bir HTML template; nadirlik, tip ve set CSS class'larıyla seçilir. Overlay ve (ileride) site aynı bileşeni kullanır.
 
 ---
 
@@ -353,37 +390,39 @@ Kart bileşeni tek bir HTML template + nadirliğe göre CSS class. Overlay ve (i
 | Uncommon | 8 | Basit keyword, maliyet 2–4 |
 | Rare | 6 | Keyword + belirgin şekil, maliyet 3–5 |
 | Epic | 3 | Niş, kombo isteyen, maliyet 4–5 |
-| Legendary | 1 | İmza kart, maliyet 5 |
+| Legendary | 1 | İmza kart, imza yeteneği taşır (§2.2), maliyet 5 |
 
-Tip dağılımı her nadirlikte dengeli olsun (HACK/WEAPON/CYBERDECK ≈ eşit), yoksa bir tip metayı ele geçirir. Özellikle üst maliyet kartlarında dengesizlik olursa üçgen anlamını kaybediyor.
+Tip dağılımı her nadirlikte dengeli olsun (POWER/TRICK/AGILITY ≈ eşit), yoksa bir tip metayı ele geçirir. Özellikle üst maliyet kartlarında dengesizlik olursa üçgen anlamını kaybediyor.
+
+**Tip kimliği** bir set tasarım rehberidir, kural değildir:
+
+- **POWER (Güç):** yüksek hasar ve maliyet.
+- **AGILITY (Çeviklik):** ucuz kartlar, OVERLOAD, erken baskı.
+- **TRICK (Hile):** keyword ve sinerji yoğun.
 
 ### 7.2 Kart tablosu şablonu
 
 Bu tabloyu doldurarak seti kuruyorsun. `Bütçe kontrol` sütunu = `damage + hp + keyword_cost − (cost × 25 + 10)`. **Hedef: 0 (±5).**
 
-| id | code | name | type | rarity | cost | damage | hp | keyword | check |
-|---|---|---|---|---|---|---|---|---|---|
-| C001 | SOK | Sokak Çocuğu | WEAPON | common | 1 | 20 | 15 | — | 0 |
-| C002 | VKU | Veri Kurdu | HACK | common | 2 | 35 | 25 | — | 0 |
-| C003 | KUR | Zırhlı Kurye | CYBERDECK | common | 3 | 30 | 55 | — | 0 |
-| C011 | RIP | Ripperdoc | CYBERDECK | uncommon | 3 | 35 | 35 | ECHO | 0 |
-| C017 | KRB | Kara Buz | HACK | rare | 4 | 45 | 45 | PIERCE | 0 |
-| C025 | CYP | Cyberpsycho | WEAPON | epic | 5 | 70 | 40 | FIRST_STRIKE | 0 |
-| C030 | ??? | ??? | — | legendary | 5 | — | — | — | — |
-| ... | | | | | | | | | |
+| id | set | code | name | type | rarity | cost | damage | hp | keyword | check |
+|---|---|---|---|---|---|---|---|---|---|---|
+| | | | | | | | | | | |
 
-**Başlangıç destesi** (herkeste sabit, toza dönüştürülemez): C001, C002, C003 + 2 common daha. Üç tipi de içermeli ki oyuncu tip üçgenini ilk maçta öğrensin.
+**Başlangıç destesi** (herkeste sabit, toza dönüştürülemez): 5 common kart. Üç tipi de içermeli ki oyuncu tip üçgenini ilk maçta öğrensin.
 
 ### 7.3 Set tasarım kuralları
 
 - Her maliyet seviyesinde en az 4 kart olsun, yoksa deste kurma tıkanır.
 - Common'ların hepsi keyword'süz. Yeni oyuncunun ilk destesi anlaşılır olmalı.
 - `FIRST_STRIKE` en güçlü keyword — sette 3'ten fazla olmasın.
+- Legendary imza yeteneği taşır, ama gücü bütçe formülüyle sınırlıdır. Legendary dahil her kart formüle uyar.
 - Her kart için tek cümlelik lore yaz. Maliyeti sıfır, bağlanma etkisi büyük.
 
 ---
 
 ## 8. Aşamalar
+
+Güncel görev listesi docs/progress.md'dedir; bu bölüm ilk plandır ve güncellenmez.
 
 ### Sprint 0 — Temel (1 hafta) · yayında değil
 
@@ -440,6 +479,8 @@ Bu tabloyu doldurarak seti kuruyorsun. `Bütçe kontrol` sütunu = `damage + hp 
 | Overlay yayının önüne geçer | Kuyruk sürekli dolu | Kişi başı limit + düello önceliği + boşta tamamen şeffaf |
 | Bot/farm hesapları | Kick'te viewbot yaygın | Hesap yaşı eşiği, ilk 3 mesaj XP vermez, IP/isim örüntü kontrolü |
 | Tek deste metayı kilitler | Bir kart aşırı güçlü | Sprint 3'ten itibaren kazanma oranı takibi; nerf'i yayında duyur, sürpriz yapma |
+| Sinerji kombosu metayı kilitler | HANDOFF, LINK, PROTOCOL gibi bonuslar aynı destede üst üste biner | Set simülasyonu; herhangi bir deste havuza karşı %60 üstü kazanıyorsa değerler düşürülür veya karta binen toplam bonusa tavan konur |
+| Yeni oyuncu açığı | Kurulmuş deste, rastgele desteyi simülasyonda %94-99 yeniyor | Açık (bkz. §10) |
 | Pusher API kırılır | Resmi olmayan endpoint | Ingest katmanını soyutla; resmi webhook'a geçiş tek dosya değişikliği olsun |
 | Sen bakımını bırakırsın | En olası risk | Sprint 3'ten sonra her şey opsiyonel olacak şekilde tasarla. v1 kendi başına ayakta durmalı. |
 
@@ -452,7 +493,14 @@ Bu tabloyu doldurarak seti kuruyorsun. `Bütçe kontrol` sütunu = `damage + hp 
 | Konu | Karar |
 |---|---|
 | Sadakat puanı | "eddie" adıyla tek para birimi; XP ayrımı RPG fazına ertelendi |
-| Tipler | HACK > CYBERDECK > WEAPON > HACK (isimler ileride revize edilebilir) |
+| Tipler | POWER > TRICK > AGILITY > POWER (Güç > Hile > Çeviklik). Tip avantajı +10, sadece kart karta |
+| Çekirdek ve enerji | Çekirdek 100 can; her tur +2 enerji, 0'dan başlar, limit 10 |
+| Keyword seti | v1'de 8 keyword (§2.2); ECHO ve RECYCLE backlog'da |
+| İmza yeteneği | Legendary'ye özel, bütçeyle fiyatlanır; ilk legendary için REBIRTH (Diriliş), maliyet 15 |
+| Çoklu set | Setler mekaniği paylaşır, aynı destede karışabilir; ad, illüstrasyon ve lore sete özel; kodlar tüm setlerde tekil |
+| İllüstrasyon | Kartlarda illüstrasyon var (eski "illüstrasyon yok" kararı kalktı) |
+| Keyword sözlüğü | Tek kaynak; hatırlatma yazısı kartlara elle yazılmaz, kart şemasında `text` alanı yok |
+| Kart görsel spesifikasyonu | `docs/card-design.md` |
 | Deste komutu | Sayı değil 3 harfli kod + bulanık eşleşme + `!deste oto` |
 | Yeni oyuncu | Garantili başlangıç destesi, deste kurmak zorunlu değil |
 | RP yayınları | Yayın modları + kasa mekaniği |
@@ -460,9 +508,11 @@ Bu tabloyu doldurarak seti kuruyorsun. `Bütçe kontrol` sütunu = `damage + hp 
 
 ### Açık
 
-1. **30 kartın isimleri ve lore'u** — evren kanalın mevcut estetiğiyle mi ortak, ayrı mı?
-2. **Legendary kart ne olacak?** — İmza kart, muhtemelen kanal maskotu.
+1. **İlk setin adı ve teması**, 30 kartın isimleri ve lore'u. Evren kanalın mevcut estetiğiyle mi ortak, ayrı mı?
+2. **Legendary kartın kimliği.** İmza kart, muhtemelen kanal maskotu. İmza yeteneği seçildi: REBIRTH.
 3. **Başlangıç destesindeki 5 kart** — üç tipi de içerecek şekilde hangileri?
+4. **Overlay görsel teması** (panel, çekirdek barı, yazılar). Kart tasarımından bağımsız.
+5. **Yeni oyuncu açığı.** Kurulmuş deste rastgele desteyi simülasyonda %94-99 yeniyor; önlem belirlenmedi.
 
 ---
 
@@ -471,7 +521,11 @@ Bu tabloyu doldurarak seti kuruyorsun. `Bütçe kontrol` sütunu = `damage + hp 
 - **Düello ödülü / bahis sistemi.** Ekonomi oturduktan sonra ele alınacak. Aday model: iki taraf 50 eddie yatırır, kazanan 80 alır, 20 yakılır — hem harcama kalemi açar hem enflasyonu emer. Risk: kaybetme acısı yeni oyuncuyu kaçırabilir, o yüzden ilk N maç bahissiz olmalı.
 - **İkinci harcama kalemi** (kozmetik çerçeve, kart yükseltme) — koleksiyonu ilk tamamlayan oyuncudan önce hazır olmalı.
 - **15 kartlık genişleme seti** — v1 lansmanından ~1 ay sonra. 30 kartlık set bu sürede çözülüyor ve meta donuyor.
-- Web sitesi (koleksiyon tarama, deste kurma)
+- Web sitesi (koleksiyon tarama, deste kurma, kart kataloğu, keyword sözlüğü, düello replay'leri)
+- **v1'den çıkarılan keyword'ler:** `ECHO` (ölünce rakip aktif karta hasar) ve `RECYCLE`.
+- **İmza yeteneği adayları** (ileride eklenecek legendary'ler için):
+  - `LEGACY` (Miras, maliyet 20-25): sahaya çıktığında sahibinin bu maçta ölen her token olmayan kartı için +10 hasar, en fazla +40.
+  - `VERDICT` (Hüküm, maliyet 20): sahaya çıktığında, çarpışmadan önce rakibin aktif kartına 25 hasar.
 - Haftalık turnuva + bracket overlay
 - Sezon / soft reset
 - RPG sistemine geçiş: XP ekseni, karakter, kartların envanter olması
