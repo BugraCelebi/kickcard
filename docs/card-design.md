@@ -82,7 +82,7 @@ Tipler bütün setlerde ortaktır. Üçgen: **Güç > Hile > Çeviklik > Güç**
 
 ## 6. Keyword gösterimi
 
-Keyword adı ve kural metni tek bir keyword sözlüğünden üretilir; kartlara elle yazılmaz. Bir keyword'ün değeri değişince bütün kartların metni kendiliğinden güncellenir. Kart başına en fazla 1 keyword.
+Keyword adı ve kural metni tek bir keyword sözlüğünden üretilir; kartlara elle yazılmaz. Buradaki metinler oyuncuya görünen kısa hatırlatma yazılarıdır; kuralın tam tanımı `.claude/rules/rules-game-engine.md`'dedir. `ARMOR` satırı görünüm içindir; verideki temsili (`ARMOR` + `keyword_value` ya da `ARMOR_X`) keyword sözlüğü adımında belirlenir. Bir keyword'ün değeri değişince bütün kartların metni kendiliğinden güncellenir. Kart başına en fazla 1 keyword.
 
 | Motor değeri | Etiket | Kural metni (hatırlatma yazısı) |
 |---|---|---|
@@ -180,11 +180,11 @@ Simülasyonla fiyatlanan adaylar (2026-10-12, ilk set için):
 
 | Yetenek | Kural metni | Bütçe maliyeti |
 |---|---|---|
-| MİRAS | Girdiğinde, bu maçta ölen her kartın için +10 hasar (en fazla +40). | 20-25 |
+| MİRAS | Girdiğinde, bu maçta ölen her (token olmayan) kartın için +10 hasar (en fazla +40). | 20-25 |
 | HÜKÜM | Girdiğinde rakibin aktif kartına çarpışmadan önce 25 hasar. | 20 |
 | DİRİLİŞ | İlk öldüğünde canının yarısıyla geri döner. Bir kez. | 10-15 |
 
-İlk efsanevi için seçilen: **DİRİLİŞ** (`REBIRTH`), bütçe maliyeti 15. Kural: ilk öldüğünde canının yarısıyla (5'in katına aşağı yuvarlanır) aynı slota geri döner; bir kez. Seçim geçicidir, sonra değiştirilebilir. Kesin maliyet set simülasyonunda doğrulanır.
+İlk efsanevi için seçilen: **DİRİLİŞ** (`REBIRTH`), bütçe maliyeti 15. Kural: ilk öldüğünde o anki maksimum canının yarısıyla (5'in katına aşağı yuvarlanır, en az 5) aynı slota geri döner; hasar bonusları korunur, geri dönüş yeni konuşlanma sayılmaz, öldüğü vuruştaki taşma çekirdeğe geçer; ikinci ölüm kalıcıdır. Kural metninin kaynağı `.claude/rules/rules-game-engine.md`; kart üstündeki hatırlatma yazısı bilerek kısadır. Seçim geçicidir, sonra değiştirilebilir. Kesin maliyet set simülasyonunda doğrulanır.
 
 İmza yetenekleri keyword sözlüğünde "yalnızca efsanevi" işaretiyle tutulur.
 
